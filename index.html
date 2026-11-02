@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>CHRONO-WEAVE • Le Cœur d'Énergie</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            space: {
+              950: '#03050a',
+              900: '#070913',
+              850: '#0b0f1e',
+              800: '#12182b',
+              700: '#1e2746',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #03050a;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Custom subtle glow effects */
+    .glow-amber {
+      box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.35);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.35);
+    }
+    .glow-purple {
+      box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.35);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.35);
+    }
+
+    /* Smooth breathing animations */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; transform: scale(0.98); }
+      50% { opacity: 0.8; transform: scale(1.02); }
+    }
+    .animate-pulse-glow {
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes breatheRing {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px currentColor); }
+      50% { transform: scale(1.03); filter: drop-shadow(0 0 25px currentColor); }
+    }
+    .animate-breathe {
+      animation: breatheRing 5s ease-in-out infinite;
+    }
+
+    /* Range inputs */
+    input[type=range] {
+      accent-color: #f59e0b;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070913;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2746;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+
+  <!-- PWA Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#f59e0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ChronoWeave" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+</head>
+<body class="bg-space-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-amber-500/30">
+
+  <!-- TOP BAR: BRAND & DAILY SUMMARY STATS -->
+  <header class="border-b border-slate-800/80 bg-space-900/90 backdrop-blur-md sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Tagline -->
+      <div class="flex items-center gap-3">
+        <div id="brandIcon" class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-purple-600/20 border border-amber-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.25)] transition-all">
+          <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base tracking-wider text-slate-100 uppercase">CHRONO<span class="text-amber-400">·</span>WEAVE</h1>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">V1.0</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Le Cœur d'Énergie • Forge d'Attention & Vainqueur d'Inertie</p>
+        </div>
+      </div>
+
+      <!-- Quick Daily Stats Pills -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-space-850 border border-slate-800/80 text-xs">
+          <span class="text-amber-400">💎</span>
+          <span class="text-slate-400">Cristaux :</span>
+          <span id="statGemsCount" class="font-bold text-slate-100 font-mono">0</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-space-850 border border-slate-800/80 text-xs">
+          <span class="text-cyan-400">⏳</span>
+          <span class="text-slate-400">Temps forgé :</span>
+          <span id="statForgedTime" class="font-bold text-slate-100 font-mono">0 min</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-space-850 border border-slate-800/80 text-xs" title="Nombre de fois où vous avez dépassé les 3 premières minutes fatidiques">
+          <span class="text-purple-400">⚡</span>
+          <span class="text-slate-400">Inerties brisées :</span>
+          <span id="statInertiaBroken" class="font-bold text-purple-300 font-mono">0</span>
+        </div>
+
+        <!-- Ambient Sound Toggle -->
+        <button id="btnAmbientToggle" class="px-2.5 py-1.5 rounded-lg bg-space-850 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all flex items-center gap-1 text-xs" title="Activer / Couper le son d'immersion (Bruit Brun & Pluie Cosmique)">
+          <span id="ambientIcon">🔇</span>
+          <span class="hidden md:inline text-[11px]" id="ambientLabel">Ambiance</span>
+        </button>
+
+        <!-- Fullscreen Zen Mode Button -->
+        <button id="btnZenToggle" class="p-1.5 rounded-lg bg-space-850 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all" title="Mode Plein Écran Zen (Touche F)">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <main class="flex-1 max-w-5xl mx-auto w-full px-4 py-3 sm:py-4 flex flex-col items-center justify-between gap-3 sm:gap-4">
+
+    <!-- 1. INTENTION / TASK PROMPT (ZERO-FRICTION INPUT) -->
+    <div id="intentionContainer" class="w-full max-w-lg transition-all duration-300">
+      <div class="relative">
+        <input 
+          type="text" 
+          id="taskInput" 
+          placeholder="Quelle matière veux-tu forger ? (ex: Écrire 1 page, ranger, réviser...)" 
+          class="w-full bg-space-900/80 border border-slate-800 focus:border-amber-400/70 focus:bg-space-850 rounded-2xl px-5 py-2.5 sm:py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition-all shadow-inner focus:shadow-[0_0_25px_rgba(245,158,11,0.15)] pr-10"
+        />
+        <button id="btnClearTask" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 hidden">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. QUICK DURATION PRESETS (ERGONOMIC PILLS) -->
+    <div id="presetsContainer" class="flex flex-wrap items-center justify-center gap-2 max-w-xl transition-all duration-300">
+      <button data-duration="3" data-name="Étincelle" class="preset-btn group px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 transition-all flex items-center gap-2 text-xs font-medium shadow-sm">
+        <span class="text-amber-400 font-bold">⚡ 3 min</span>
+        <span class="text-[11px] text-amber-400/70 hidden sm:inline">Anti-blocage</span>
+      </button>
+
+      <button data-duration="15" data-name="Sprint" class="preset-btn px-3.5 py-2 rounded-xl border border-slate-800 bg-space-900 hover:border-slate-700 hover:bg-space-850 text-slate-300 transition-all flex items-center gap-2 text-xs font-medium">
+        <span class="text-cyan-400 font-bold">⏱️ 15 min</span>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">Sprint rapide</span>
+      </button>
+
+      <button data-duration="25" data-name="Flux Classique" class="preset-btn px-3.5 py-2 rounded-xl border border-amber-500/50 bg-amber-500/15 text-amber-200 transition-all flex items-center gap-2 text-xs font-semibold glow-amber">
+        <span class="text-amber-400 font-bold">🌀 25 min</span>
+        <span class="text-[11px] text-amber-300/80 hidden sm:inline">Flux Pomodoro</span>
+      </button>
+
+      <button data-duration="45" data-name="Flux Profond" class="preset-btn px-3.5 py-2 rounded-xl border border-slate-800 bg-space-900 hover:border-slate-700 hover:bg-space-850 text-slate-300 transition-all flex items-center gap-2 text-xs font-medium">
+        <span class="text-purple-400 font-bold">🌌 45 min</span>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">Hyperfocus</span>
+      </button>
+
+      <button data-duration="5" data-name="Brumisation" data-type="break" class="preset-btn px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-all flex items-center gap-2 text-xs font-medium">
+        <span class="text-emerald-400 font-bold">🍃 5 min</span>
+        <span class="text-[11px] text-emerald-400/70 hidden sm:inline">Pause</span>
+      </button>
+    </div>
+
+    <!-- 3. THE CENTRAL ENERGY REACTOR (CANVAS + BREATHING CORE) -->
+    <div class="relative flex items-center justify-center my-0 sm:my-1">
+      
+      <!-- Ambient Outer Glow Aura -->
+      <div id="ambientAura" class="absolute w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full bg-gradient-to-tr from-amber-500/15 via-purple-600/10 to-transparent blur-3xl pointer-events-none animate-pulse-glow transition-all duration-1000"></div>
+
+      <!-- The Canvas Reactor (Particle vortex, liquid wave ring, energetic plasma) -->
+      <div class="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] flex items-center justify-center">
+        <canvas id="reactorCanvas" width="320" height="320" class="w-full h-full cursor-pointer"></canvas>
+
+        <!-- Center Overlay Text / HUD -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          
+          <!-- Mode Indicator Badge -->
+          <div id="phaseBadge" class="text-[9px] sm:text-[11px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/80 text-amber-300 mb-0.5 transition-all shadow-md">
+            Prêt à Forger
+          </div>
+
+          <!-- Time Display (Can be toggled to Zen/Silent icon) -->
+          <div id="timeContainer" class="flex flex-col items-center">
+            <span id="timeText" class="font-mono text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+              25:00
+            </span>
+            <div id="zenIcon" class="hidden my-2">
+              <svg class="w-10 h-10 text-amber-400 animate-breathe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="5" stroke-dasharray="3 3"/>
+                <circle cx="12" cy="12" r="2" fill="currentColor"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Subtext (Current Task / Progress info) -->
+          <div id="currentTaskLabel" class="text-xs text-slate-400 max-w-[200px] text-center truncate mt-0.5 font-medium">
+            Sans intention définie
+          </div>
+
+          <!-- 3-Minute Anti-Inertia Gauge (Visible during first 3 minutes of a focus session) -->
+          <div id="inertiaGaugeContainer" class="hidden flex-col items-center mt-1">
+            <div class="w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden border border-amber-500/30">
+              <div id="inertiaBar" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 w-0 transition-all duration-300"></div>
+            </div>
+            <span id="inertiaLabel" class="text-[9px] text-amber-400/90 font-mono mt-0.5 tracking-wider uppercase">Inertie : 0/180s</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 4. PRIMARY ERGONOMIC CONTROLS -->
+    <div class="flex flex-col items-center gap-2 w-full max-w-md">
+      
+      <!-- Big Action Buttons -->
+      <div class="flex items-center gap-3 w-full justify-center">
+        
+        <!-- Toggle Start / Pause -->
+        <button id="btnPrimaryAction" class="flex-1 max-w-[220px] py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm tracking-wider uppercase transition-all shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_35px_rgba(245,158,11,0.55)] active:scale-95 flex items-center justify-center gap-2">
+          <svg id="primaryIcon" class="w-4 h-4 fill-current" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <span id="primaryText">Allumer le Cœur</span>
+        </button>
+
+        <!-- Finish & Crystallize Early (When user completed work) -->
+        <button id="btnFinishEarly" class="hidden px-4 py-3 rounded-2xl bg-space-850 border border-slate-700 hover:border-amber-400/60 text-amber-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 shadow-md active:scale-95" title="Encaisser et cristalliser le temps accompli jusqu'ici">
+          <span>💎</span>
+          <span class="hidden sm:inline">Cristalliser</span>
+        </button>
+
+        <!-- Reset Button -->
+        <button id="btnReset" class="p-3 rounded-2xl bg-space-850 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white transition-all active:scale-95" title="Réinitialiser le réacteur">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+            <path d="M21 3v5h-5"/>
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+            <path d="M8 16H3v5"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <!-- Emergency Lifeline: "Je Bloque / Envie de Scroller" -->
+      <button id="btnEmergencyHelp" class="text-xs text-slate-400 hover:text-amber-300 py-1 px-3 rounded-lg hover:bg-space-900 border border-transparent hover:border-amber-500/20 transition-all flex items-center gap-1.5">
+        <span>🛟</span>
+        <span>Je bloque / Envie de scroller ?</span>
+      </button>
+
+      <!-- Display Options Toolbar (Hide numbers, change theme) -->
+      <div class="flex items-center justify-center gap-4 text-xs text-slate-500">
+        <button id="btnToggleZenDigits" class="hover:text-slate-300 flex items-center gap-1 transition-colors" title="Masquer les chiffres pour éliminer le stress du décompte">
+          <span id="zenEyeIcon">👁️</span>
+          <span id="zenEyeLabel">Mode chiffres</span>
+        </button>
+        <span>•</span>
+        <!-- Color theme picker -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-[11px]">Énergie :</span>
+          <button data-theme="amber" class="theme-btn w-3.5 h-3.5 rounded-full bg-amber-400 ring-2 ring-amber-400/50 hover:scale-125 transition-transform"></button>
+          <button data-theme="cyan" class="theme-btn w-3.5 h-3.5 rounded-full bg-cyan-400 hover:scale-125 transition-transform"></button>
+          <button data-theme="purple" class="theme-btn w-3.5 h-3.5 rounded-full bg-purple-400 hover:scale-125 transition-transform"></button>
+          <button data-theme="emerald" class="theme-btn w-3.5 h-3.5 rounded-full bg-emerald-400 hover:scale-125 transition-transform"></button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 5. LE CYLINDRE DU JOUR / LA FRESQUE TEMPORELLE (24H SPATIAL VISUALIZATION) -->
+    <div class="w-full max-w-4xl bg-space-900/60 border border-slate-800/80 rounded-2xl p-4 backdrop-blur-md">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Le Cylindre du Jour</span>
+          <span class="text-[10px] text-slate-500 font-mono">(07h00 → 23h00)</span>
+        </div>
+        <div class="text-[11px] text-slate-400">
+          <span class="text-amber-400 font-bold" id="timelineActiveHours">Aujourd'hui</span>
+        </div>
+      </div>
+
+      <!-- The 24h Interactive Timeline Bar -->
+      <div class="relative w-full h-10 bg-space-950 rounded-xl border border-slate-800 overflow-hidden flex items-center px-1" id="timelineBar">
+        
+        <!-- Hour Markers (07h, 09h, 11h, 13h, 15h, 17h, 19h, 21h, 23h) -->
+        <div class="absolute inset-0 flex justify-between px-3 text-[9px] font-mono text-slate-600 pointer-events-none items-center">
+          <span>07h</span>
+          <span>09h</span>
+          <span>11h</span>
+          <span>13h</span>
+          <span>15h</span>
+          <span>17h</span>
+          <span>19h</span>
+          <span>21h</span>
+          <span>23h</span>
+        </div>
+
+        <!-- Rendered Gem Blocks Container (Dynamic) -->
+        <div id="timelineGemsLayer" class="absolute inset-0 pointer-events-auto"></div>
+
+        <!-- Current Time Cursor Line -->
+        <div id="currentTimeCursor" class="absolute top-0 bottom-0 w-0.5 bg-red-400/80 z-20 pointer-events-none shadow-[0_0_8px_rgba(248,113,113,0.8)]">
+          <div class="w-1.5 h-1.5 bg-red-400 rounded-full -translate-x-1/2 -translate-y-1"></div>
+        </div>
+
+      </div>
+
+      <!-- Legend & Reassurance -->
+      <div class="flex items-center justify-between text-[11px] text-slate-500 mt-2 px-1 flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_rgba(245,158,11,0.5)]"></span> Temps Cristallisé</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-slate-800 inline-block"></span> Espace de Brume</span>
+        </div>
+        <div class="text-slate-400 italic">
+          « Pas de culpabilité : le vide est du repos, chaque gemme est une victoire. »
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER SHORTCUTS -->
+  <footer class="border-t border-slate-900 py-3 text-center text-xs text-slate-600">
+    <div class="max-w-4xl mx-auto flex items-center justify-center gap-4 flex-wrap">
+      <span>Raccourcis : <kbd class="px-1.5 py-0.5 rounded bg-space-800 text-slate-300 font-mono">Espace</kbd> Démarrer/Pause</span>
+      <span>•</span>
+      <span><kbd class="px-1.5 py-0.5 rounded bg-space-800 text-slate-300 font-mono">F</kbd> Plein Écran Zen</span>
+      <span>•</span>
+      <span><kbd class="px-1.5 py-0.5 rounded bg-space-800 text-slate-300 font-mono">M</kbd> Ambiance Sonore</span>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL: EMERGENCY LIFELINE ("JE BLOQUE") ==================== -->
+  <div id="modalEmergency" class="fixed inset-0 bg-space-950/85 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-space-900 border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-[0_0_50px_rgba(245,158,11,0.2)] animate-fade-in relative flex flex-col items-center text-center">
+      
+      <button id="btnCloseEmergency" class="absolute right-4 top-4 text-slate-400 hover:text-white p-1">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-2xl mb-3 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+        🛟
+      </div>
+
+      <h3 class="text-lg font-bold text-white mb-1">Respire. Le blocage est normal.</h3>
+      <p class="text-xs text-slate-400 mb-5">
+        Le cerveau procrastine uniquement quand la tâche paraît trop immense ou intimidante. Rompons le charme en une micro-seconde.
+      </p>
+
+      <!-- 4-7-8 Breathing Visualizer -->
+      <div class="my-3 flex flex-col items-center">
+        <div id="breathCircle" class="w-20 h-20 rounded-full border-2 border-amber-400/80 bg-amber-400/10 flex items-center justify-center transition-all duration-1000 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+          <span id="breathText" class="text-xs font-bold text-amber-300">Inspire</span>
+        </div>
+        <span class="text-[10px] text-slate-500 mt-2 font-mono">Régulation du cortex préfrontal</span>
+      </div>
+
+      <!-- The Micro-Step Prompt -->
+      <div class="w-full bg-space-950/80 border border-slate-800 rounded-2xl p-4 my-4 text-left">
+        <label class="block text-xs font-semibold text-amber-300 mb-1">
+          La Règle du Micro-Pas (30 secondes max) :
+        </label>
+        <p class="text-[11px] text-slate-400 mb-2">
+          Oublie tout le reste. Quelle est la plus minuscule action immédiate ?
+        </p>
+        <input 
+          type="text" 
+          id="microStepInput" 
+          placeholder="Ex: Écrire 1 mot, ouvrir le dossier, surligner une ligne..." 
+          class="w-full bg-space-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder:text-slate-500 focus:border-amber-400 outline-none"
+        />
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex flex-col gap-2 w-full">
+        <button id="btnCommitMicroStep" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold text-xs uppercase tracking-wider hover:from-amber-400 hover:to-amber-500 transition-all shadow-md">
+          Je fais juste ce micro-pas (Go !)
+        </button>
+        <button id="btnSwitchTo3Min" class="w-full py-2 rounded-xl bg-space-800 hover:bg-space-700 text-amber-300 text-xs font-medium transition-all">
+          Convertir en Session Étincelle (3 min chrono)
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: SESSION COMPLETED & CRYSTALLIZED ==================== -->
+  <div id="modalCompleted" class="fixed inset-0 bg-space-950/90 backdrop-blur-2xl z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-space-900 border border-amber-400/50 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-[0_0_60px_rgba(245,158,11,0.3)] animate-fade-in flex flex-col items-center text-center">
+      
+      <!-- Big Shining Gem Icon -->
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400/30 to-purple-600/30 border border-amber-400/60 flex items-center justify-center text-4xl mb-4 shadow-[0_0_35px_rgba(245,158,11,0.5)] animate-bounce">
+        💎
+      </div>
+
+      <div class="text-[11px] font-mono uppercase tracking-widest text-amber-400 mb-1">Victoire sur le temps</div>
+      <h3 class="text-2xl font-black text-white mb-2">Matière Cristallisée !</h3>
+      
+      <p id="completedSummaryText" class="text-xs text-slate-300 max-w-xs mb-5">
+        Tu as transformé 25 minutes de néant en matière pure d'attention pour « Rédiger le rapport ».
+      </p>
+
+      <!-- Satisfaction Rating (1 to 5 stars) -->
+      <div class="mb-5">
+        <span class="text-[11px] text-slate-400 block mb-1.5 font-medium">Comment était ton niveau de flux ?</span>
+        <div class="flex items-center justify-center gap-2" id="starRating">
+          <button data-star="1" class="star-btn text-xl text-amber-400 hover:scale-125 transition-transform">⭐</button>
+          <button data-star="2" class="star-btn text-xl text-amber-400 hover:scale-125 transition-transform">⭐</button>
+          <button data-star="3" class="star-btn text-xl text-amber-400 hover:scale-125 transition-transform">⭐</button>
+          <button data-star="4" class="star-btn text-xl text-amber-400 hover:scale-125 transition-transform">⭐</button>
+          <button data-star="5" class="star-btn text-xl text-amber-400 hover:scale-125 transition-transform">⭐</button>
+        </div>
+      </div>
+
+      <!-- Action: Bank Gem into Day Ring -->
+      <button id="btnDepositGem" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-lg active:scale-95">
+        Déposer dans le Cylindre du Jour
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION LOGIC & AUDIO SYNTHESIS ==================== -->
+  <script>
+    /* ==========================================================================
+       1. WEB AUDIO SYNTHESIZER (ZERO EXTERNAL MP3 DEPENDENCIES)
+       Real-time Brown Noise, Harmonic Tibetan Bowl Chime, Click generator.
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.noiseNode = null;
+        this.noiseGain = null;
+        this.isMuted = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      playClick(freq = 600, duration = 0.04) {
+        if (this.isMuted) return;
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + duration);
+          gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      playInertiaBrokenChime() {
+        if (this.isMuted) return;
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.12);
+            gain.gain.setValueAtTime(0, now + i * 0.12);
+            gain.gain.linearRampToValueAtTime(0.15, now + i * 0.12 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.12 + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.12);
+            osc.stop(now + i * 0.12 + 1.3);
+          });
+        } catch (e) {}
+      }
+
+      playCrystallizeChime() {
+        if (this.isMuted) return;
+        try {
+          this.init();
+          const now = this.ctx.currentTime;
+          // Tibetan Singing Bowl Harmonic Chime (432Hz fundamental + rich overtones)
+          const harmonics = [432, 864, 1296, 1728];
+          harmonics.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+            const volume = 0.2 / (idx + 1);
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(volume, now + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 4.6);
+          });
+        } catch (e) {}
+      }
+
+      toggleBrownNoise() {
+        this.init();
+        if (this.noiseNode) {
+          this.stopBrownNoise();
+          return false;
+        } else {
+          this.startBrownNoise();
+          return true;
+        }
+      }
+
+      startBrownNoise() {
+        try {
+          this.init();
+          const bufferSize = 2 * this.ctx.sampleRate;
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          let lastOut = 0.0;
+          for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            output[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = output[i];
+            output[i] *= 3.5; // Gain compensation
+          }
+
+          const whiteNoise = this.ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          // Low-pass filter at 350 Hz to produce deep, soothing warm rumble
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(320, this.ctx.currentTime);
+
+          this.noiseGain = this.ctx.createGain();
+          this.noiseGain.gain.setValueAtTime(0.001, this.ctx.currentTime);
+          this.noiseGain.gain.exponentialRampToValueAtTime(0.25, this.ctx.currentTime + 1.5);
+
+          whiteNoise.connect(filter);
+          filter.connect(this.noiseGain);
+          this.noiseGain.connect(this.ctx.destination);
+          whiteNoise.start();
+          this.noiseNode = whiteNoise;
+          this.isMuted = false;
+        } catch (e) {
+          console.error("Audio error:", e);
+        }
+      }
+
+      stopBrownNoise() {
+        if (this.noiseGain && this.ctx) {
+          try {
+            this.noiseGain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+            setTimeout(() => {
+              if (this.noiseNode) {
+                this.noiseNode.stop();
+                this.noiseNode.disconnect();
+                this.noiseNode = null;
+              }
+            }, 800);
+          } catch (e) {}
+        }
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    /* ==========================================================================
+       2. REACTOR CANVAS ANIMATION ENGINE (PARTICLES + LIQUID WAVE + GLOW)
+       ========================================================================== */
+    class ReactorVisualizer {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.width = this.canvas.width;
+        this.height = this.canvas.height;
+        this.centerX = this.width / 2;
+        this.centerY = this.height / 2;
+
+        this.particles = [];
+        this.initParticles(70);
+
+        this.waveOffset = 0;
+        this.themeColor = '#f59e0b'; // Amber
+        this.themeRGB = '245, 158, 11';
+        this.isRunning = false;
+        this.progress = 0; // 0 to 1
+        this.isSparkPhase = false; // first 3 minutes
+
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+      }
+
+      setTheme(colorName) {
+        const themes = {
+          amber: { hex: '#f59e0b', rgb: '245, 158, 11' },
+          cyan: { hex: '#06b6d4', rgb: '6, 182, 212' },
+          purple: { hex: '#a855f7', rgb: '168, 85, 247' },
+          emerald: { hex: '#10b981', rgb: '16, 185, 129' },
+        };
+        const t = themes[colorName] || themes.amber;
+        this.themeColor = t.hex;
+        this.themeRGB = t.rgb;
+      }
+
+      initParticles(count) {
+        this.particles = [];
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 40 + Math.random() * 95;
+          this.particles.push({
+            angle: angle,
+            distance: distance,
+            speed: (0.005 + Math.random() * 0.015) * (Math.random() > 0.5 ? 1 : -1),
+            size: 1 + Math.random() * 2.5,
+            opacity: 0.2 + Math.random() * 0.7,
+            pulseOffset: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      animate(time) {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.waveOffset += 0.035;
+
+        const pulse = Math.sin(time * 0.002) * 0.05 + 1; // gentle breath 0.95 to 1.05
+
+        // A. OUTER PROGRESS RING GROOVE
+        const ringRadius = 125;
+        this.ctx.lineWidth = 8;
+        this.ctx.lineCap = 'round';
+
+        // Background Track
+        this.ctx.beginPath();
+        this.ctx.arc(this.centerX, this.centerY, ringRadius, 0, Math.PI * 2);
+        this.ctx.strokeStyle = 'rgba(30, 41, 59, 0.45)';
+        this.ctx.stroke();
+
+        // Active Liquid Progress Arc
+        if (this.progress > 0) {
+          const startAngle = -Math.PI / 2;
+          const endAngle = startAngle + (Math.PI * 2 * this.progress);
+          
+          this.ctx.beginPath();
+          this.ctx.arc(this.centerX, this.centerY, ringRadius, startAngle, endAngle);
+          
+          // Glow effect
+          this.ctx.shadowBlur = 18;
+          this.ctx.shadowColor = `rgba(${this.themeRGB}, 0.8)`;
+          this.ctx.strokeStyle = this.themeColor;
+          this.ctx.stroke();
+          this.ctx.shadowBlur = 0; // reset
+        }
+
+        // B. INNER CONCENTRIC PLASMA RINGS
+        this.ctx.beginPath();
+        this.ctx.arc(this.centerX, this.centerY, 115 * pulse, 0, Math.PI * 2);
+        this.ctx.strokeStyle = `rgba(${this.themeRGB}, 0.12)`;
+        this.ctx.lineWidth = 1.5;
+        this.ctx.stroke();
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.centerX, this.centerY, 85 * pulse, 0, Math.PI * 2);
+        this.ctx.strokeStyle = `rgba(${this.themeRGB}, 0.18)`;
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+
+        // C. PARTICLE VORTEX
+        const speedMultiplier = this.isRunning ? (this.isSparkPhase ? 2.5 : 1.3) : 0.4;
+        for (let p of this.particles) {
+          p.angle += p.speed * speedMultiplier;
+          const rad = p.distance * (this.isRunning ? pulse : 1);
+          const x = this.centerX + Math.cos(p.angle) * rad;
+          const y = this.centerY + Math.sin(p.angle) * rad;
+
+          const currentOpacity = p.opacity * (this.isRunning ? (Math.sin(time * 0.004 + p.pulseOffset) * 0.3 + 0.7) : 0.4);
+
+          this.ctx.beginPath();
+          this.ctx.arc(x, y, p.size, 0, Math.PI * 2);
+          this.ctx.fillStyle = `rgba(${this.themeRGB}, ${currentOpacity})`;
+          this.ctx.fill();
+
+          // Connect nearby particles with subtle filament lines if active
+          if (this.isRunning && Math.random() < 0.02) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            this.ctx.lineTo(this.centerX, this.centerY);
+            this.ctx.strokeStyle = `rgba(${this.themeRGB}, 0.04)`;
+            this.ctx.stroke();
+          }
+        }
+
+        // D. CENTER CORE BREATHING SPHERE
+        const coreGradient = this.ctx.createRadialGradient(
+          this.centerX, this.centerY, 10,
+          this.centerX, this.centerY, 80 * pulse
+        );
+        coreGradient.addColorStop(0, `rgba(${this.themeRGB}, ${this.isRunning ? 0.35 : 0.12})`);
+        coreGradient.addColorStop(0.5, `rgba(${this.themeRGB}, ${this.isRunning ? 0.15 : 0.04})`);
+        coreGradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+        this.ctx.beginPath();
+        this.ctx.arc(this.centerX, this.centerY, 80 * pulse, 0, Math.PI * 2);
+        this.ctx.fillStyle = coreGradient;
+        this.ctx.fill();
+
+        requestAnimationFrame(this.animate);
+      }
+    }
+
+    /* ==========================================================================
+       3. APPLICATION STATE & LOGIC
+       LocalStorage persistence, 3-min rule, emergency modal, daily timeline.
+       ========================================================================== */
+    class ChronoWeaveApp {
+      constructor() {
+        this.totalDuration = 25 * 60; // default 25 min in seconds
+        this.remainingSeconds = this.totalDuration;
+        this.timerInterval = null;
+        this.isRunning = false;
+        this.sessionStartTime = null;
+        this.sessionTask = '';
+        this.sessionType = 'focus'; // 'focus' or 'break'
+        this.hasBrokenInertiaThisSession = false;
+        this.isZenMode = false;
+        this.targetEndTime = null;
+        this.wakeLock = null;
+
+        // Persisted state
+        this.history = this.loadHistory();
+        this.stats = this.loadStats();
+
+        // UI elements
+        this.initDom();
+        this.visualizer = new ReactorVisualizer('reactorCanvas');
+        this.bindEvents();
+        this.renderStats();
+        this.renderTimeline();
+        this.updateTimeDisplay();
+        this.startCurrentTimeTicker();
+      }
+
+      loadHistory() {
+        try {
+          const data = localStorage.getItem('chrono_weave_history');
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      saveHistory() {
+        try {
+          localStorage.setItem('chrono_weave_history', JSON.stringify(this.history));
+        } catch (e) {}
+      }
+
+      loadStats() {
+        try {
+          const data = localStorage.getItem('chrono_weave_stats');
+          return data ? JSON.parse(data) : { gemsCount: 0, totalForgedSeconds: 0, inertiaBroken: 0 };
+        } catch (e) {
+          return { gemsCount: 0, totalForgedSeconds: 0, inertiaBroken: 0 };
+        }
+      }
+
+      saveStats() {
+        try {
+          localStorage.setItem('chrono_weave_stats', JSON.stringify(this.stats));
+        } catch (e) {}
+      }
+
+      initDom() {
+        this.dom = {
+          taskInput: document.getElementById('taskInput'),
+          btnClearTask: document.getElementById('btnClearTask'),
+          timeText: document.getElementById('timeText'),
+          zenIcon: document.getElementById('zenIcon'),
+          phaseBadge: document.getElementById('phaseBadge'),
+          currentTaskLabel: document.getElementById('currentTaskLabel'),
+          inertiaGaugeContainer: document.getElementById('inertiaGaugeContainer'),
+          inertiaBar: document.getElementById('inertiaBar'),
+          inertiaLabel: document.getElementById('inertiaLabel'),
+          btnPrimaryAction: document.getElementById('btnPrimaryAction'),
+          primaryText: document.getElementById('primaryText'),
+          primaryIcon: document.getElementById('primaryIcon'),
+          btnFinishEarly: document.getElementById('btnFinishEarly'),
+          btnReset: document.getElementById('btnReset'),
+          btnEmergencyHelp: document.getElementById('btnEmergencyHelp'),
+          btnAmbientToggle: document.getElementById('btnAmbientToggle'),
+          ambientIcon: document.getElementById('ambientIcon'),
+          ambientLabel: document.getElementById('ambientLabel'),
+          btnZenToggle: document.getElementById('btnZenToggle'),
+          btnToggleZenDigits: document.getElementById('btnToggleZenDigits'),
+          zenEyeIcon: document.getElementById('zenEyeIcon'),
+          zenEyeLabel: document.getElementById('zenEyeLabel'),
+          ambientAura: document.getElementById('ambientAura'),
+          statGemsCount: document.getElementById('statGemsCount'),
+          statForgedTime: document.getElementById('statForgedTime'),
+          statInertiaBroken: document.getElementById('statInertiaBroken'),
+          timelineGemsLayer: document.getElementById('timelineGemsLayer'),
+          currentTimeCursor: document.getElementById('currentTimeCursor'),
+          modalEmergency: document.getElementById('modalEmergency'),
+          btnCloseEmergency: document.getElementById('btnCloseEmergency'),
+          breathCircle: document.getElementById('breathCircle'),
+          breathText: document.getElementById('breathText'),
+          microStepInput: document.getElementById('microStepInput'),
+          btnCommitMicroStep: document.getElementById('btnCommitMicroStep'),
+          btnSwitchTo3Min: document.getElementById('btnSwitchTo3Min'),
+          modalCompleted: document.getElementById('modalCompleted'),
+          completedSummaryText: document.getElementById('completedSummaryText'),
+          btnDepositGem: document.getElementById('btnDepositGem'),
+          starRating: document.getElementById('starRating')
+        };
+      }
+
+      bindEvents() {
+        // Visualizer Canvas click to toggle
+        this.dom.reactorCanvas = document.getElementById('reactorCanvas');
+        this.dom.reactorCanvas.addEventListener('click', () => {
+          this.toggleTimer();
+        });
+
+        // Task input events
+        this.dom.taskInput.addEventListener('input', (e) => {
+          this.sessionTask = e.target.value.trim();
+          this.dom.btnClearTask.classList.toggle('hidden', !this.sessionTask);
+          this.dom.currentTaskLabel.textContent = this.sessionTask || 'Sans intention définie';
+        });
+
+        this.dom.btnClearTask.addEventListener('click', () => {
+          this.dom.taskInput.value = '';
+          this.sessionTask = '';
+          this.dom.btnClearTask.classList.add('hidden');
+          this.dom.currentTaskLabel.textContent = 'Sans intention définie';
+        });
+
+        // Preset Duration Buttons
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            sound.playClick(500);
+            if (this.isRunning) {
+              if (!confirm("Une session est en cours. Changer de durée va la réinitialiser. Continuer ?")) return;
+              this.resetTimer();
+            }
+            const mins = parseInt(btn.dataset.duration, 10);
+            this.sessionType = btn.dataset.type === 'break' ? 'break' : 'focus';
+            this.totalDuration = mins * 60;
+            this.remainingSeconds = this.totalDuration;
+            this.updateTimeDisplay();
+
+            // Visual feedback on presets
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('glow-amber', 'border-amber-500/50', 'bg-amber-500/15'));
+            btn.classList.add('glow-amber', 'border-amber-500/50', 'bg-amber-500/15');
+
+            this.dom.phaseBadge.textContent = this.sessionType === 'break' ? 'Pause Régénérante' : `Session ${mins} min prête`;
+          });
+        });
+
+        // Primary Start / Pause button
+        this.dom.btnPrimaryAction.addEventListener('click', () => this.toggleTimer());
+
+        // Finish Early & Crystallize
+        this.dom.btnFinishEarly.addEventListener('click', () => {
+          sound.playClick(650);
+          this.finishSession(true);
+        });
+
+        // Reset
+        this.dom.btnReset.addEventListener('click', () => {
+          sound.playClick(350);
+          this.resetTimer();
+        });
+
+        // Ambient noise toggle
+        this.dom.btnAmbientToggle.addEventListener('click', () => {
+          const active = sound.toggleBrownNoise();
+          this.dom.ambientIcon.textContent = active ? '🌊' : '🔇';
+          this.dom.ambientLabel.textContent = active ? 'Son Actif' : 'Ambiance';
+          this.dom.btnAmbientToggle.classList.toggle('border-amber-400', active);
+        });
+
+        // Zen Fullscreen mode
+        this.dom.btnZenToggle.addEventListener('click', () => this.toggleFullscreen());
+
+        // Zen Digits (Hide numbers)
+        this.dom.btnToggleZenDigits.addEventListener('click', () => {
+          this.isZenMode = !this.isZenMode;
+          this.dom.timeText.classList.toggle('hidden', this.isZenMode);
+          this.dom.zenIcon.classList.toggle('hidden', !this.isZenMode);
+          this.dom.zenEyeLabel.textContent = this.isZenMode ? 'Mode zen (masqué)' : 'Mode chiffres';
+          this.dom.zenEyeIcon.textContent = this.isZenMode ? '🙈' : '👁️';
+        });
+
+        // Theme Pickers
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const theme = btn.dataset.theme;
+            this.visualizer.setTheme(theme);
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            btn.classList.add('ring-2', 'ring-white');
+          });
+        });
+
+        // Emergency modal
+        this.dom.btnEmergencyHelp.addEventListener('click', () => this.openEmergencyModal());
+        this.dom.btnCloseEmergency.addEventListener('click', () => this.closeEmergencyModal());
+        this.dom.btnCommitMicroStep.addEventListener('click', () => {
+          const micro = this.dom.microStepInput.value.trim();
+          if (micro) {
+            this.sessionTask = micro;
+            this.dom.taskInput.value = micro;
+            this.dom.currentTaskLabel.textContent = micro;
+          }
+          this.closeEmergencyModal();
+          if (!this.isRunning) this.startTimer();
+        });
+        this.dom.btnSwitchTo3Min.addEventListener('click', () => {
+          this.closeEmergencyModal();
+          this.resetTimer();
+          this.totalDuration = 3 * 60;
+          this.remainingSeconds = this.totalDuration;
+          this.startTimer();
+        });
+
+        // Completed Modal Deposit
+        this.dom.btnDepositGem.addEventListener('click', () => {
+          this.dom.modalCompleted.classList.add('hidden');
+          this.renderStats();
+          this.renderTimeline();
+          this.resetTimer();
+        });
+
+        // Star rating clicks
+        document.querySelectorAll('.star-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const rating = parseInt(btn.dataset.star, 10);
+            document.querySelectorAll('.star-btn').forEach((b, idx) => {
+              b.style.opacity = idx < rating ? '1' : '0.3';
+            });
+            sound.playClick(600 + rating * 60);
+          });
+        });
+
+        // Page visibility change (Catch up wall-clock time if mobile sleeps or switches tabs)
+        document.addEventListener('visibilitychange', () => {
+          if (this.isRunning) {
+            this.tick();
+            if (!document.hidden) {
+              this.requestWakeLock();
+            }
+          }
+        });
+
+        // Keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+          if (e.target.tagName === 'INPUT') return;
+          if (e.code === 'Space') {
+            e.preventDefault();
+            this.toggleTimer();
+          } else if (e.key === 'f' || e.key === 'F') {
+            this.toggleFullscreen();
+          } else if (e.key === 'm' || e.key === 'M') {
+            this.dom.btnAmbientToggle.click();
+          }
+        });
+      }
+
+      toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+
+      toggleTimer() {
+        if (this.isRunning) {
+          this.pauseTimer();
+        } else {
+          this.startTimer();
+        }
+      }
+
+      async requestWakeLock() {
+        try {
+          if ('wakeLock' in navigator && !this.wakeLock) {
+            this.wakeLock = await navigator.wakeLock.request('screen');
+          }
+        } catch (e) {}
+      }
+
+      releaseWakeLock() {
+        if (this.wakeLock) {
+          try {
+            this.wakeLock.release();
+          } catch (e) {}
+          this.wakeLock = null;
+        }
+      }
+
+      startTimer() {
+        sound.init();
+        sound.playClick(600);
+        this.isRunning = true;
+        this.visualizer.isRunning = true;
+
+        if (!this.sessionStartTime) {
+          this.sessionStartTime = new Date();
+        }
+
+        // Set exact wall-clock target end time
+        this.targetEndTime = Date.now() + (this.remainingSeconds * 1000);
+
+        // Keep screen awake on mobile if supported
+        this.requestWakeLock();
+
+        // Request notification permission if not yet decided
+        if ('Notification' in window && Notification.permission === 'default') {
+          try { Notification.requestPermission(); } catch (e) {}
+        }
+
+        // Update UI buttons
+        this.dom.primaryText.textContent = "Suspendre";
+        this.dom.primaryIcon.innerHTML = `<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>`;
+        this.dom.btnFinishEarly.classList.remove('hidden');
+
+        this.dom.phaseBadge.textContent = "Flux Actif • Allumage";
+        this.dom.phaseBadge.className = "text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/60 text-amber-300 mb-1 shadow-md animate-pulse";
+
+        clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => this.tick(), 500);
+      }
+
+      pauseTimer() {
+        sound.playClick(400);
+        this.isRunning = false;
+        this.visualizer.isRunning = false;
+        clearInterval(this.timerInterval);
+        this.releaseWakeLock();
+
+        if (this.targetEndTime) {
+          const now = Date.now();
+          this.remainingSeconds = Math.max(0, Math.ceil((this.targetEndTime - now) / 1000));
+          this.targetEndTime = null;
+        }
+
+        this.dom.primaryText.textContent = "Reprendre";
+        this.dom.primaryIcon.innerHTML = `<polygon points="6 3 20 12 6 21 6 3"/>`;
+        this.dom.phaseBadge.textContent = "Session Suspendue";
+        this.dom.phaseBadge.className = "text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-400 mb-1";
+      }
+
+      resetTimer() {
+        this.pauseTimer();
+        this.remainingSeconds = this.totalDuration;
+        this.sessionStartTime = null;
+        this.targetEndTime = null;
+        this.hasBrokenInertiaThisSession = false;
+        this.visualizer.progress = 0;
+        this.visualizer.isSparkPhase = false;
+
+        this.dom.btnFinishEarly.classList.add('hidden');
+        this.dom.inertiaGaugeContainer.classList.add('hidden');
+        this.dom.primaryText.textContent = "Allumer le Cœur";
+        this.dom.primaryIcon.innerHTML = `<polygon points="6 3 20 12 6 21 6 3"/>`;
+        this.dom.phaseBadge.textContent = "Prêt à Forger";
+        this.dom.phaseBadge.className = "text-[10px] sm:text-xs font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/80 text-amber-300 mb-1 transition-all shadow-md";
+
+        this.updateTimeDisplay();
+      }
+
+      tick() {
+        if (!this.targetEndTime) return;
+        const now = Date.now();
+        const diffSeconds = Math.max(0, Math.ceil((this.targetEndTime - now) / 1000));
+        this.remainingSeconds = diffSeconds;
+        this.updateTimeDisplay();
+
+        const elapsed = this.totalDuration - this.remainingSeconds;
+        this.visualizer.progress = Math.min(1, Math.max(0, elapsed / this.totalDuration));
+
+        // 3-Minute Rule Check (First 180 seconds)
+        if (this.sessionType === 'focus' && this.totalDuration >= 180) {
+          if (elapsed <= 180) {
+            this.visualizer.isSparkPhase = true;
+            this.dom.inertiaGaugeContainer.classList.remove('hidden');
+            this.dom.inertiaBar.style.width = `${(elapsed / 180) * 100}%`;
+            this.dom.inertiaLabel.textContent = `Inertie : ${elapsed}/180s`;
+          } else {
+            this.visualizer.isSparkPhase = false;
+            if (!this.hasBrokenInertiaThisSession) {
+              this.hasBrokenInertiaThisSession = true;
+              this.stats.inertiaBroken++;
+              this.saveStats();
+              this.renderStats();
+              sound.playInertiaBrokenChime();
+              this.dom.phaseBadge.textContent = "✨ Inertie Brisée • Flux Profond";
+              this.dom.inertiaLabel.textContent = "Inertie vaincue !";
+              setTimeout(() => {
+                this.dom.inertiaGaugeContainer.classList.add('hidden');
+              }, 4000);
+            }
+          }
+        }
+
+        if (this.remainingSeconds <= 0) {
+          this.finishSession(false);
+        }
+      }
+
+      finishSession(early = false) {
+        clearInterval(this.timerInterval);
+        this.isRunning = false;
+        this.visualizer.isRunning = false;
+        this.releaseWakeLock();
+
+        const forgedSeconds = early 
+          ? (this.totalDuration - this.remainingSeconds) 
+          : this.totalDuration;
+
+        // Ignore sessions shorter than 30 seconds
+        if (forgedSeconds < 30) {
+          this.resetTimer();
+          return;
+        }
+
+        const forgedMinutes = Math.max(1, Math.round(forgedSeconds / 60));
+
+        // Create Crystallized Gem
+        const now = new Date();
+        const start = this.sessionStartTime || new Date(now.getTime() - forgedSeconds * 1000);
+
+        const gem = {
+          id: Date.now(),
+          task: this.sessionTask || (this.sessionType === 'break' ? 'Pause Sérénité' : 'Session Libre'),
+          type: this.sessionType,
+          durationMinutes: forgedMinutes,
+          startHour: start.getHours() + (start.getMinutes() / 60),
+          endHour: now.getHours() + (now.getMinutes() / 60),
+          timestamp: now.toISOString(),
+          color: this.visualizer.themeColor
+        };
+
+        this.history.push(gem);
+        this.saveHistory();
+
+        this.stats.gemsCount++;
+        this.stats.totalForgedSeconds += forgedSeconds;
+        this.saveStats();
+
+        // Celebration chime
+        sound.playCrystallizeChime();
+
+        // System Notification (Mobile / Desktop)
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try {
+            new Notification("CHRONO-WEAVE : Énergie Cristallisée ! 💎", {
+              body: `Votre session pour « ${gem.task} » est terminée avec succès (${forgedMinutes} min).`,
+            });
+          } catch (e) {}
+        }
+
+        // Show Completed Modal
+        this.dom.completedSummaryText.textContent = `Tu as forgé ${forgedMinutes} minute${forgedMinutes > 1 ? 's' : ''} de concentration pure pour « ${gem.task} ».`;
+        this.dom.modalCompleted.classList.remove('hidden');
+      }
+
+      updateTimeDisplay() {
+        const mins = Math.floor(this.remainingSeconds / 60);
+        const secs = this.remainingSeconds % 60;
+        this.dom.timeText.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        document.title = `${this.dom.timeText.textContent} • CHRONO-WEAVE`;
+      }
+
+      renderStats() {
+        this.dom.statGemsCount.textContent = this.stats.gemsCount;
+        const totalMins = Math.round(this.stats.totalForgedSeconds / 60);
+        const hours = Math.floor(totalMins / 60);
+        const mins = totalMins % 60;
+        this.dom.statForgedTime.textContent = hours > 0 ? `${hours}h ${mins}m` : `${mins} min`;
+        this.dom.statInertiaBroken.textContent = this.stats.inertiaBroken;
+      }
+
+      renderTimeline() {
+        this.dom.timelineGemsLayer.innerHTML = '';
+        const todayStr = new Date().toDateString();
+
+        const todayGems = this.history.filter(g => new Date(g.timestamp).toDateString() === todayStr);
+
+        // Timeline bounds: 07h to 23h (16 hours total span)
+        const timelineStart = 7;
+        const timelineEnd = 23;
+        const totalSpan = timelineEnd - timelineStart;
+
+        todayGems.forEach(gem => {
+          // Clamp to timeline range
+          const startClamped = Math.max(timelineStart, Math.min(timelineEnd, gem.startHour));
+          const endClamped = Math.max(timelineStart, Math.min(timelineEnd, gem.endHour || (startClamped + gem.durationMinutes / 60)));
+
+          const leftPercent = ((startClamped - timelineStart) / totalSpan) * 100;
+          const widthPercent = Math.max(1.5, ((endClamped - startClamped) / totalSpan) * 100);
+
+          const gemEl = document.createElement('div');
+          gemEl.className = 'absolute top-1 bottom-1 rounded-lg flex items-center justify-center transition-all hover:scale-105 cursor-pointer shadow-sm group';
+          gemEl.style.left = `${leftPercent}%`;
+          gemEl.style.width = `${widthPercent}%`;
+          gemEl.style.backgroundColor = gem.color || '#f59e0b';
+          gemEl.style.boxShadow = `0 0 12px ${gem.color || '#f59e0b'}80`;
+
+          // Tooltip
+          const tooltip = document.createElement('div');
+          tooltip.className = 'absolute bottom-full mb-1.5 hidden group-hover:flex flex-col items-center bg-space-900 border border-slate-700 text-slate-100 text-[10px] px-2 py-1 rounded-md shadow-xl whitespace-nowrap z-30 pointer-events-none';
+          tooltip.innerHTML = `<b>${gem.task}</b><span>${gem.durationMinutes} min • ${Math.floor(gem.startHour)}h${Math.round((gem.startHour % 1) * 60).toString().padStart(2, '0')}</span>`;
+          gemEl.appendChild(tooltip);
+
+          this.dom.timelineGemsLayer.appendChild(gemEl);
+        });
+      }
+
+      startCurrentTimeTicker() {
+        const updateCursor = () => {
+          const now = new Date();
+          const currentHourDecimal = now.getHours() + (now.getMinutes() / 60);
+          const timelineStart = 7;
+          const timelineEnd = 23;
+          const totalSpan = timelineEnd - timelineStart;
+
+          if (currentHourDecimal >= timelineStart && currentHourDecimal <= timelineEnd) {
+            const percent = ((currentHourDecimal - timelineStart) / totalSpan) * 100;
+            this.dom.currentTimeCursor.style.left = `${percent}%`;
+            this.dom.currentTimeCursor.classList.remove('hidden');
+          } else {
+            this.dom.currentTimeCursor.classList.add('hidden');
+          }
+        };
+
+        updateCursor();
+        setInterval(updateCursor, 60000); // check every minute
+      }
+
+      // Emergency Breathing Exercise
+      openEmergencyModal() {
+        sound.playClick(450);
+        this.dom.modalEmergency.classList.remove('hidden');
+        this.dom.microStepInput.value = '';
+        this.startBreathingCycle();
+      }
+
+      closeEmergencyModal() {
+        this.dom.modalEmergency.classList.add('hidden');
+        clearInterval(this.breathInterval);
+      }
+
+      startBreathingCycle() {
+        clearInterval(this.breathInterval);
+        let phase = 0; // 0: inhale (4s), 1: hold (7s), 2: exhale (8s)
+        const phases = [
+          { text: 'Inspire (4s)', scale: 'scale-125 bg-amber-400/25', duration: 4000 },
+          { text: 'Bloque (7s)', scale: 'scale-125 bg-purple-500/25', duration: 7000 },
+          { text: 'Expire (8s)', scale: 'scale-90 bg-amber-400/10', duration: 8000 }
+        ];
+
+        const runPhase = () => {
+          const p = phases[phase];
+          this.dom.breathText.textContent = p.text;
+          this.dom.breathCircle.className = `w-20 h-20 rounded-full border-2 border-amber-400/80 flex items-center justify-center transition-all duration-1000 shadow-[0_0_20px_rgba(245,158,11,0.2)] ${p.scale}`;
+          
+          this.breathTimeout = setTimeout(() => {
+            phase = (phase + 1) % phases.length;
+            runPhase();
+          }, p.duration);
+        };
+
+        runPhase();
+      }
+    }
+
+    // Initialize application on DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      window.app = new ChronoWeaveApp();
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
